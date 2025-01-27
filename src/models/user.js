@@ -46,8 +46,30 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
+    }],
+    avatar: {
+        type: Buffer,   // binary image data
+    }
+}, {
+    timestamps: true,
 })
+
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
+userSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+
+    delete userObject.password;
+    delete userObject.tokens;
+    delete userObject.avatar;
+
+    return userObject;
+}
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
